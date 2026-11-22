@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="깅혱잉">
+<meta name="theme-color" id="tc" content="#ffd84d">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>깅혱잉 꾸미기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@800&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@700&family=Nanum+Pen+Script&family=Gowun+Batang:wght@700&family=Hi+Melody&family=Gamja+Flower&family=Yeon+Sung&family=Bagel+Fat+One&family=East+Sea+Dokdo&display=swap&text=%EA%B9%85%ED%98%B1%EC%9E%89" rel="stylesheet">
+<style>
+/* VOICE: 장난스럽고 가벼운 놀이 도구
+   IDEA: 이름표 스티커를 꾸미는 작은 작업대
+   PICTURE: 화면 위쪽 절반을 꽉 채운 "깅혱잉" 무대 — 사용자가 고른 색이 가장자리까지
+   COLOUR and TYPE: 무대는 사용자 색(기본 노랑 + 먹색), UI는 흰 패널 + 코랄 강조; 시스템 한글 고딕
+   LAYOUT: 위 무대, 아래 조절판(크기 → 글꼴 → 글자색 → 배경색 → 효과) */
+:root{color-scheme:light dark;--bg:light-dark(#f6f4f1,#141414);--panel:light-dark(#ffffff,#1f1f1f);--ink:light-dark(#1d1b1a,#eeeae6);--muted:light-dark(#77716b,#9b958f);--line:light-dark(#ebe7e2,#333);--acc:#ff5a5f;--sbg:#ffd84d;--sfg:#1d1b1a}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+.stage{position:relative;display:grid;place-items:center;height:clamp(260px,50vh,560px);padding:calc(env(safe-area-inset-top) + 16px) max(16px,env(safe-area-inset-right)) 16px max(16px,env(safe-area-inset-left));background:var(--sbg);transition:background-color .3s;overflow:hidden}
+#word{margin:0;color:var(--sfg);line-height:1.1;white-space:nowrap;font-weight:400;transition:color .3s;user-select:none;-webkit-user-select:none}
+#word.shadow{text-shadow:.05em .05em 0 rgba(0,0,0,.22)}
+#word.it{transform:skewX(-10deg)}
+#word.pop{animation:pop .28s ease-out}
+@keyframes pop{40%{scale:1.06}}
+@media(prefers-reduced-motion:reduce){#word.pop{animation:none}.stage,#word{transition:none}}
+.panel{max-width:680px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.grp{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
+.hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+h2{font-size:16px;margin:0;line-height:1.3}
+.val{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+input[type=range]{width:100%;height:44px;accent-color:var(--acc);margin:0}
+.chips{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.chip{flex:none;scroll-snap-align:start;min-width:104px;min-height:76px;border:1px solid var(--line);border-radius:14px;background:none;color:var(--ink);cursor:pointer;padding:8px 10px;display:grid;place-items:center;gap:2px}
+.chip b{font-size:26px;line-height:1.15;font-weight:400}
+.chip small{font-size:13px;color:var(--muted)}
+.chip[aria-pressed=true]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.sw{display:flex;flex-wrap:wrap;gap:10px}
+.dot{width:44px;height:44px;border-radius:50%;border:1px solid rgba(0,0,0,.14);cursor:pointer;padding:0;position:relative}
+.dot[aria-pressed=true]{box-shadow:0 0 0 3px var(--panel),0 0 0 5px var(--acc)}
+.pick{width:44px;height:44px;border-radius:50%;position:relative;overflow:hidden;background:conic-gradient(red,#ff0,lime,cyan,blue,#f0f,red);border:1px solid rgba(0,0,0,.14);cursor:pointer}
+.pick input{position:absolute;inset:-8px;width:60px;height:60px;opacity:0;cursor:pointer}
+.pick.on{box-shadow:0 0 0 3px var(--panel),0 0 0 5px var(--acc)}
+.tg{display:flex;flex-wrap:wrap;gap:10px}
+.t{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);font:600 15px/1 inherit;cursor:pointer}
+.t[aria-pressed=true]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.acts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.b{min-height:52px;border-radius:14px;border:0;font:700 16px/1 inherit;cursor:pointer}
+.b.main{background:var(--acc);color:#fff}
+.b.sub{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,.pick:focus-within{outline:2px solid var(--acc);outline-offset:3px}
+</style>
+</head>
+<body>
+<section class="stage" id="stage" aria-label="미리보기"><h1 id="word">깅혱잉</h1></section>
+<main class="panel">
+ <div class="grp">
+  <div class="hd"><h2>크기</h2><span class="val" id="szv">120px</span></div>
+  <input type="range" id="sz" min="32" max="260" step="1" value="120" aria-label="글자 크기">
+ </div>
+ <div class="grp">
+  <div class="hd"><h2>글꼴</h2><span class="val" id="fnv">기본 고딕</span></div>
+  <div class="chips" id="fonts"></div>
+ </div>
+ <div class="grp">
+  <div class="hd"><h2>글자 색</h2><span class="val" id="fgv"></span></div>
+  <div class="sw" id="fgs"></div>
+ </div>
+ <div class="grp">
+  <div class="hd"><h2>배경 색</h2><span class="val" id="bgv"></span></div>
+  <div class="sw" id="bgs"></div>
+ </div>
+ <div class="grp">
+  <div class="hd"><h2>효과</h2></div>
+  <div class="tg"><button type="button" class="t" id="shadow" aria-pressed="false">그림자</button><button type="button" class="t" id="italic" aria-pressed="false">기울임</button></div>
+ </div>
+ <div class="acts"><button type="button" class="b main" id="rand">랜덤 꾸미기</button><button type="button" class="b sub" id="reset">처음으로</button></div>
+</main>
+<script>
+{
+const FONTS=[['기본 고딕','"Noto Sans KR"',800],['검은고딕','"Black Han Sans"',400],['도현','"Do Hyeon"',400],['주아','Jua',400],['개구','Gaegu',700],['나눔펜','"Nanum Pen Script"',400],['고운바탕','"Gowun Batang"',700],['하이멜로디','"Hi Melody"',400],['감자꽃','"Gamja Flower"',400],['연성','"Yeon Sung"',400],['베이글','"Bagel Fat One"',400],['동해독도','"East Sea Dokdo"',400]];
+const FG=['#1d1b1a','#ffffff','#ff5a5f','#ff8a00','#ffd84d','#2bb673','#1e88e5','#6d4aff','#ff6fb5','#8d6e63'];
+const BG=['#ffd84d','#ffffff','#1d1b1a','#ffe1ea','#d6f3e3','#dbeafe','#ff5a5f','#2b2d42','#fff1d6'];
+const DEF={sz:120,font:0,fg:'#1d1b1a',bg:'#ffd84d',shadow:false,italic:false};
+const $=id=>document.getElementById(id);
+let st={...DEF};
+try{const s=JSON.parse(localStorage.getItem('ging-v1')||'null');if(s)st={...DEF,...s}}catch(e){}
+const save=()=>{try{localStorage.setItem('ging-v1',JSON.stringify(st))}catch(e){}};
+
+$('fonts').innerHTML=FONTS.map((f,i)=>`<button type="button" class="chip" data-i="${i}" aria-pressed="false"><b style="font-family:${f[1].replace(/"/g,'&quot;')},sans-serif;font-weight:${f[2]}">깅혱잉</b><small>${f[0]}</small></button>`).join('');
+const sw=(list,id,kind)=>{$(id).innerHTML=list.map(c=>`<button type="button" class="dot" data-c="${c}" style="background:${c}" aria-label="${c}" aria-pressed="false"></button>`).join('')+`<label class="pick" title="직접 고르기"><input type="color" data-k="${kind}" aria-label="색 직접 고르기"></label>`};
+sw(FG,'fgs','fg');sw(BG,'bgs','bg');
+
+const word=$('word');
+function render(pop){
+ const f=FONTS[st.font]||FONTS[0];
+ word.style.fontFamily=f[1]+',sans-serif';word.style.fontWeight=f[2];
+ word.style.fontSize=`min(${st.sz}px, 28vw)`;
+ document.documentElement.style.setProperty('--sfg',st.fg);
+ document.documentElement.style.setProperty('--sbg',st.bg);
+ $('tc').setAttribute('content',st.bg);
+ word.classList.toggle('shadow',st.shadow);word.classList.toggle('it',st.italic);
+ $('sz').value=st.sz;$('szv').textContent=st.sz+'px';$('fnv').textContent=f[0];
+ $('fgv').textContent=st.fg.toUpperCase();$('bgv').textContent=st.bg.toUpperCase();
+ document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',+c.dataset.i===st.font));
+ for(const [id,k] of [['fgs','fg'],['bgs','bg']]){
+  let hit=false;
+  $(id).querySelectorAll('.dot').forEach(d=>{const on=d.dataset.c.toLowerCase()===st[k].toLowerCase();if(on)hit=true;d.setAttribute('aria-pressed',on)});
+  const p=$(id).querySelector('.pick');p.classList.toggle('on',!hit);p.querySelector('input').value=st[k];
+ }
+ $('shadow').setAttribute('aria-pressed',st.shadow);$('italic').setAttribute('aria-pressed',st.italic);
+ if(pop){word.classList.remove('pop');void word.offsetWidth;word.classList.add('pop')}
+ save();
+}
+$('sz').addEventListener('input',e=>{st.sz=+e.target.value;render(false)});
+$('fonts').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;st.font=+c.dataset.i;render(true)});
+for(const [id,k] of [['fgs','fg'],['bgs','bg']]){
+ $(id).addEventListener('click',e=>{const d=e.target.closest('.dot');if(!d)return;st[k]=d.dataset.c;render(true)});
+ $(id).querySelector('input').addEventListener('input',e=>{st[k]=e.target.value;render(false)});
+}
+$('shadow').addEventListener('click',()=>{st.shadow=!st.shadow;render(true)});
+$('italic').addEventListener('click',()=>{st.italic=!st.italic;render(true)});
+$('reset').addEventListener('click',()=>{st={...DEF};render(true)});
+const pickR=a=>a[Math.floor(Math.random()*a.length)];
+$('rand').addEventListener('click',()=>{
+ const lum=h=>{const n=parseInt(h.slice(1),16),c=[n>>16,n>>8&255,n&255].map(v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4});return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+ const ratio=(a,b)=>{const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+ const bg=pickR(BG),ok=FG.filter(c=>ratio(c,bg)>=3),fg=pickR(ok.length?ok:FG);
+ st={sz:80+Math.floor(Math.random()*140),font:Math.floor(Math.random()*FONTS.length),fg,bg,shadow:Math.random()<.4,italic:Math.random()<.25};
+ render(true);
+});
+render(false);
+if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
+}
+</script>
+</body>
+</html>
